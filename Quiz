@@ -1,0 +1,122 @@
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+
+const questions = [
+  { question: "رامي شاف سارة لأول مرة امتى؟", options: ["1 أبريل", "6 أبريل", "11 أبريل"], answer: "1 أبريل" },
+  { question: "إيه أكتر حاجة خلت رامي يرتاح لسارة؟", options: ["ضحكتها", "عدم وضعها للمكياج", "لبسها"], answer: "عدم وضعها للمكياج" },
+  { question: "إمتى تمت قراءة الفاتحة؟", options: ["6 أبريل", "11 أبريل", "1 أبريل"], answer: "6 أبريل" },
+  { question: "مين اللي نسي يجيب الجاتوه والحاجة الساقعة؟", options: ["رامي", "خاله", "والده"], answer: "خاله" },
+  { question: "إيه اللي عجب سارة في رامي أول مرة؟", options: ["هدوءه", "وسامته", "ثقته في نفسه"], answer: "ثقته في نفسه" },
+  { question: "سارة زعلت ليه وهي بتختار الدهب؟", options: ["علشان مكنتش بتحبه", "علشان أختها منار مجتش معاها", "علشان غالي"], answer: "علشان أختها منار مجتش معاها" },
+  { question: "أكتر حاجة بتحرج سارة من رامي؟", options: ["صوته العالي", "نظراته ليها", "هزاره الكتير"], answer: "نظراته ليها" },
+  { question: "سارة بتحب تشرب إيه؟", options: ["يانسون", "سحلب", "الشاي"], answer: "الشاي" },
+  { question: "رامي بيحب إيه؟", options: ["الشاي", "التفاح و اليانسون", "القهوة"], answer: "التفاح و اليانسون" },
+  { question: "سارة زعلت لما جابلها رامي؟", options: ["موبايل", "ورد", "شيكولاتة"], answer: "موبايل" },
+  { question: "سارة بتغير على رامي لما؟", options: ["يشتري لبس جديد", "يكلم بنات في الشغل", "يخرج مع صحابه"], answer: "يكلم بنات في الشغل" },
+  { question: "سارة نفسها تعمل إيه بدل الفرح؟", options: ["تسافر", "تشتري دهب أكتر", "تعمل عمرة"], answer: "تعمل عمرة" },
+  { question: "إيه أكتر حاجة بتحبها سارة من رامي؟", options: ["صوته", "ضحكه", "بصته ليها"], answer: "بصته ليها" },
+  { question: "إيه اللي سارة كانت متوترة منه؟", options: ["رامي يغير بعد الجواز", "اللحمة مش مظبوطة", "الفرح مش هيعجب الناس"], answer: "رامي يغير بعد الجواز" },
+  { question: "رامي بيحب إيه من الأكل؟", options: ["الشطة", "طبق الفاكهة اللي بتعمله سارة", "اللحمة بس"], answer: "طبق الفاكهة اللي بتعمله سارة" },
+  { question: "سارة سمت رامي إيه في التليفون؟", options: ["روحي", "سعادتي", "حبيبي"], answer: "سعادتي" },
+  { question: "رامي بعتلها شيكولاتة وورد في يوم إيه؟", options: ["شم النسيم", "رمضان", "عيد الفطر"], answer: "شم النسيم" },
+  { question: "سارة بتفرح بإيه أكتر؟", options: ["الهدايا الغالية", "إن رامي يفتكرها ويجبها حاجات بسيطة", "الخروج"], answer: "إن رامي يفتكرها ويجبها حاجات بسيطة" },
+  { question: "رامي بيقول سارة بتقوله إيه في الهزار؟", options: ["هموت فيك", "يا كتكوتي", "يا قلبي"], answer: "يا كتكوتي" },
+  { question: "سارة بتحب فيديوهات إيه؟", options: ["الضحك", "حب قديم عليهم صورهم", "الرعب"], answer: "حب قديم عليهم صورهم" },
+  { question: "إيه المشروب اللي رامي مبيحبوش؟", options: ["سحلب", "يانسون", "الشاي"], answer: "الشاي" },
+  { question: "إيه أكتر حاجة بتفرح سارة في المكالمات؟", options: ["عددها", "مدتها", "إنها أول وآخر حاجة ف يوم رامي"], answer: "إنها أول وآخر حاجة ف يوم رامي" },
+  { question: "رامي جابلها شيبسي بطعم إيه؟", options: ["ملح", "شطة", "جبنة"], answer: "شطة" },
+];
+
+const musicUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; // ممكن تغير الرابط هنا
+
+const Quiz = () => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(30);
+
+  useEffect(() => {
+    if (showResult) return; // وقف العداد لما تظهر النتيجة
+
+    if (timeLeft === 0) {
+      handleNext();
+      return;
+    }
+    const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [timeLeft, showResult]);
+
+  const handleAnswer = (selected) => {
+    if (selected === questions[currentQuestion].answer) {
+      setScore(score + 1);
+    }
+    handleNext();
+  };
+
+  const handleNext = () => {
+    if (currentQuestion + 1 < questions.length) {
+      setCurrentQuestion(currentQuestion + 1);
+      setTimeLeft(30);
+    } else {
+      setShowResult(true);
+    }
+  };
+
+  if (showResult) {
+    const isHappy = score >= 20;
+    return (
+      <div className="p-4 text-center">
+        <motion.h2
+          className="text-2xl font-bold mb-4"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {isHappy ? "أشطر كتكوت 🐣" : "ليه كده يا روحي؟ 😢"}
+        </motion.h2>
+        <motion.img
+          src={isHappy ? "https://i.imgur.com/w6bKZC3.png" : "https://i.imgur.com/QtZ6zDC.png"}
+          alt="النتيجة"
+          className="mx-auto rounded-xl w-64 h-64"
+          initial={{ rotate: -10, opacity: 0 }}
+          animate={{ rotate: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 100, damping: 10 }}
+        />
+        <motion.p
+          className="mt-4 text-xl"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          درجتك: {score} من {questions.length}
+        </motion.p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4 max-w-xl mx-auto">
+      <audio src={musicUrl} autoPlay loop />
+      <div className="mb-4 flex justify-between items-center">
+        <h2 className="text-lg font-bold">
+          السؤال {currentQuestion + 1} من {questions.length}
+        </h2>
+        <span className="text-red-500 font-bold">⏱ {timeLeft} ثانية</span>
+      </div>
+      <h3 className="text-xl font-semibold mb-4">{questions[currentQuestion].question}</h3>
+      <div className="space-y-2">
+        {questions[currentQuestion].options.map((option, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleAnswer(option)}
+            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Quiz;
